@@ -269,7 +269,9 @@ export const ravenParser: StreamParser<RavenState> = {
     if (identifierStart.test(ch)) {
       stream.next()
       stream.eatWhile(identifierPart)
-      const style = shouldKeyword(stream, state)
+      const word = stream.current()
+      const isControlKeyword = word === "break" || word === "return" || word === "continue"
+      const style = (isControlKeyword || shouldKeyword(stream, state))
         ? "keyword"
         : state.afterDot
           ? "propertyName"

@@ -83,4 +83,10 @@ describe("raven stream mode", () => {
     expect(styleFor(doc, "y")).toBe("variableName.special")
     expect(tokens(doc).find(t => t.text.startsWith("#"))?.style).toBe("comment")
   })
+
+  it("always treats control flow keywords as keywords", () => {
+    expect(styleFor("if x { return }", "return")).toBe("keyword")
+    expect(styleFor("while true { break }", "break")).toBe("keyword")
+    expect(styleFor("while true { continue }", "continue")).toBe("keyword")
+  })
 })
