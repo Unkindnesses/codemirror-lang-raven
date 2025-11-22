@@ -1,5 +1,5 @@
 {
-  "name": "@unkindnesses/codemirror-raven",
+  "name": "@unkindnesses/codemirror-lang-raven",
   "version": "0.1.0",
   "description": "CodeMirror 6 language support for the Raven programming language.",
   "license": "MIT",
