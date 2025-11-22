@@ -89,4 +89,12 @@ describe("raven stream mode", () => {
     expect(styleFor("while true { break }", "break")).toBe("keyword")
     expect(styleFor("while true { continue }", "continue")).toBe("keyword")
   })
+
+  it("requires whitespace after macro/keyword names", () => {
+    expect(styleFor("n-1", "n")).toBe("variableName")
+    expect(styleFor("n-1", "-")).toBe("operator")
+    expect(styleFor("n-1", "1")).toBe("number")
+    expect(styleFor("n -1", "n")).toBe("keyword")
+    expect(styleFor("n -1", "-1")).toBe("number")
+  })
 })

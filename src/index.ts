@@ -127,8 +127,7 @@ function isArgStart(stream: StringStream, next: { ch: string | undefined; pos: n
 function shouldKeyword(stream: StringStream, state: RavenState): boolean {
   if (!state.exprStart || !state.macroEligible || state.afterDot || state.inSwap || state.macroLocked) return false
   const immediate = stream.peek()
-  if (immediate === "(" || immediate === "[" || immediate === ".") return false
-  if (immediate !== undefined && isStringStart(stream.string.slice(stream.pos))) return false
+  if (immediate !== " ") return false
   const next = peekNonSpace(stream)
   if (next.ch === undefined || statementTerminators.has(next.ch)) return false
   return isArgStart(stream, next)
