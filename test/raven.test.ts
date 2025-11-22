@@ -8,7 +8,15 @@ type Token = { text: string; style: string | null }
 function tokens(doc: string): Token[] {
   const state: RavenState = ravenParser.startState
     ? ravenParser.startState(2)
-    : { string: null, exprStart: true, macroEligible: true, afterDot: false, inSwap: false }
+    : {
+      string: null,
+      exprStart: true,
+      macroEligible: true,
+      afterDot: false,
+      inSwap: false,
+      macroLocked: false,
+      macroLockStack: [],
+    }
   const result: Token[] = []
   for (const line of doc.split(/\r?\n/)) {
     if (line === "" && ravenParser.blankLine) {
@@ -42,6 +50,13 @@ describe("raven stream mode", () => {
     expect(styleFor("foo(bar)", "foo")).toBe("variableName")
     expect(styleFor("foo bar", "foo")).toBe("keyword")
     expect(styleFor("foo = 1", "foo")).toBe("variableName")
+  })
+
+  it("treats loop iterables as variables", () => {
+    const doc = `for x = xs {\n  total = total + x\n}`
+    const xsTokens = tokens(doc).filter(token => token.text === "xs")
+    expect(xsTokens.length).toBe(1)
+    expect(xsTokens[0]?.style).toBe("variableName")
   })
 
   it("handles tags, raw strings, and extensible delimiters", () => {

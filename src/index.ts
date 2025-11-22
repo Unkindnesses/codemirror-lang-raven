@@ -17,6 +17,8 @@ export interface RavenState {
   macroEligible: boolean
   afterDot: boolean
   inSwap: boolean
+  macroLocked: boolean
+  macroLockStack: boolean[]
 }
 
 const identifierStart = /[A-Za-z_]/
@@ -123,7 +125,7 @@ function isArgStart(stream: StringStream, next: { ch: string | undefined; pos: n
 }
 
 function shouldKeyword(stream: StringStream, state: RavenState): boolean {
-  if (!state.exprStart || !state.macroEligible || state.afterDot || state.inSwap) return false
+  if (!state.exprStart || !state.macroEligible || state.afterDot || state.inSwap || state.macroLocked) return false
   const immediate = stream.peek()
   if (immediate === "(" || immediate === "[" || immediate === ".") return false
   if (immediate !== undefined && isStringStart(stream.string.slice(stream.pos))) return false
@@ -135,13 +137,22 @@ function shouldKeyword(stream: StringStream, state: RavenState): boolean {
 export const ravenParser: StreamParser<RavenState> = {
   name: "raven",
   startState(): RavenState {
-    return { string: null, exprStart: true, macroEligible: true, afterDot: false, inSwap: false }
+    return {
+      string: null,
+      exprStart: true,
+      macroEligible: true,
+      afterDot: false,
+      inSwap: false,
+      macroLocked: false,
+      macroLockStack: [],
+    }
   },
   blankLine(state) {
     state.exprStart = true
     state.macroEligible = true
     state.afterDot = false
     state.inSwap = false
+    state.macroLocked = false
   },
   token(stream, state) {
     if (state.string) return readString(stream, state)
@@ -150,6 +161,7 @@ export const ravenParser: StreamParser<RavenState> = {
       state.macroEligible = true
       state.afterDot = false
       state.inSwap = false
+      state.macroLocked = false
     }
     if (stream.eatSpace()) return null
     const number = readNumber(stream, state)
@@ -165,6 +177,7 @@ export const ravenParser: StreamParser<RavenState> = {
       state.macroEligible = true
       state.afterDot = false
       state.inSwap = false
+      state.macroLocked = false
       return "comment"
     }
     if (ch === ",") {
@@ -173,11 +186,18 @@ export const ravenParser: StreamParser<RavenState> = {
       state.macroEligible = true
       state.afterDot = false
       state.inSwap = false
+      state.macroLocked = false
       return "punctuation"
     }
     if (delimiters.has(ch)) {
       stream.next()
       const open = ch === "(" || ch === "[" || ch === "{"
+      if (open) {
+        state.macroLockStack.push(state.macroLocked)
+        state.macroLocked = false
+      } else {
+        state.macroLocked = state.macroLockStack.pop() ?? false
+      }
       state.exprStart = open
       state.macroEligible = open
       state.afterDot = false
@@ -259,6 +279,7 @@ export const ravenParser: StreamParser<RavenState> = {
       if (style === "keyword") {
         state.exprStart = true
         state.macroEligible = false
+        state.macroLocked = true
       } else {
         state.exprStart = false
         state.macroEligible = false
