@@ -18,10 +18,9 @@
   },
   "scripts": {
     "prepare": "npm run build",
-    "build": "tsc -p tsconfig.json",
-    "test": "vitest run",
-    "check": "tsc -p tsconfig.json --noEmit",
-    "prepublishOnly": "npm run check && npm run build && npm test"
+    "build": "tsc",
+    "test": "tsc --noEmit && vitest run",
+    "prepublishOnly": "npm run build && npm test"
   },
   "dependencies": {
     "@codemirror/language": "^6.11.3",
