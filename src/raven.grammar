@@ -9,7 +9,7 @@ Statement {
 
 Attribute { At AttributeName NoSyntaxExpression* separator+ Statement }
 
-AttributeName { Identifier }
+AttributeName { Identifier | Keyword }
 
 Expression {
   SyntaxExpression |
@@ -18,7 +18,7 @@ Expression {
 
 SyntaxExpression { SyntaxHead NoSyntaxExpression+ }
 
-SyntaxHead { Identifier | HeadOperator }
+SyntaxHead { Keyword | Identifier | HeadOperator }
 
 BinaryExpression {
   UnaryExpression (Operator Newline* Expression)?
@@ -49,10 +49,11 @@ Index { IndexOpenBracket sequence CloseBracket }
 
 Field { FieldDot FieldName }
 
-FieldName { Identifier | HeadOperator | Number | String | Group | List | Block }
+FieldName { Identifier | Keyword | HeadOperator | Number | String | Group | List | Block }
 
 Atom {
   Template |
+  Keyword |
   Identifier |
   HeadOperator |
   Number |
@@ -117,3 +118,7 @@ separator { Newline | Comma }
 
   @precedence { Splat, Number, Identifier }
 }
+
+kw<word> { @specialize[@name={word}]<Identifier, word> }
+
+Keyword { kw<"break"> | kw<"return"> | kw<"continue"> }

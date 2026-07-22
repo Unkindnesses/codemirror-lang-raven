@@ -11,6 +11,7 @@ const parser = baseParser.configure({
   props: [
     styleTags({
       "SyntaxHead!": tags.keyword,
+      "Keyword!": tags.keyword,
       "AttributeName!": tags.attributeName,
       "FieldName!": tags.propertyName,
       Identifier: tags.variableName,

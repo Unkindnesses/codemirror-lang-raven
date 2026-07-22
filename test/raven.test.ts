@@ -77,6 +77,10 @@ describe("syntax heads", () => {
     expect(highlighted(source, "variable")).toContain("else")
   })
 
+  it("highlights control-transfer words even when they stand alone", () => {
+    expect(highlighted("break\nreturn\ncontinue", "keyword")).toEqual(["break", "return", "continue"])
+  })
+
   it("styles symbolic syntax heads as keywords", () => {
     expect(highlighted("== value", "keyword")).toEqual(["=="])
     expect(highlighted("== value", "operator")).toEqual([])
