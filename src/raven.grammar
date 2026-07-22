@@ -1,0 +1,119 @@
+@top Document { sequence }
+
+@skip { HorizontalSpace | LineComment }
+
+Statement {
+  Attribute |
+  Expression
+}
+
+Attribute { At AttributeName NoSyntaxExpression* separator+ Statement }
+
+AttributeName { Identifier }
+
+Expression {
+  SyntaxExpression |
+  BinaryExpression
+}
+
+SyntaxExpression { SyntaxHead NoSyntaxExpression+ }
+
+SyntaxHead { Identifier | HeadOperator }
+
+BinaryExpression {
+  UnaryExpression (Operator Newline* Expression)?
+}
+
+NoSyntaxExpression {
+  UnaryExpression (Operator Newline* NoSyntaxExpression)?
+}
+
+UnaryExpression {
+  PrefixOperator UnaryExpression |
+  PostfixExpression
+}
+
+PostfixExpression {
+  Atom PostfixPart* Splat?
+}
+
+PostfixPart {
+  Call |
+  Index |
+  Field
+}
+
+Call { CallOpenParen sequence CloseParen }
+
+Index { IndexOpenBracket sequence CloseBracket }
+
+Field { FieldDot FieldName }
+
+FieldName { Identifier | HeadOperator | Number | String | Group | List | Block }
+
+Atom {
+  Template |
+  Identifier |
+  HeadOperator |
+  Number |
+  String |
+  Group |
+  List |
+  Block
+}
+
+Template { Identifier TemplateString }
+
+Group { OpenParen sequence CloseParen }
+
+List { OpenBracket sequence CloseBracket }
+
+Block { LBrace sequence RBrace }
+
+sequence { separator* (Statement separator+)* Statement? }
+
+separator { Newline | Comma }
+
+@external tokens stringToken from "./tokens.js" {
+  String,
+  TemplateString
+}
+
+@external tokens delimiterToken from "./tokens.js" {
+  OpenParen,
+  CallOpenParen,
+  CloseParen,
+  OpenBracket,
+  IndexOpenBracket,
+  CloseBracket,
+  FieldDot
+}
+
+@external tokens operatorToken from "./tokens.js" {
+  PrefixOperator,
+  HeadOperator,
+  Operator
+}
+
+@tokens {
+  HorizontalSpace { $[ \t\r]+ }
+  LineComment { "#" ![\n]* }
+  Newline { "\n" }
+  Comma { "," }
+
+  At { "@" }
+  LBrace { "{" }
+  RBrace { "}" }
+  Splat { "..." }
+
+  Number {
+    "0x" $[0-9a-fA-F] ($[0-9a-fA-F] | "_" $[0-9a-fA-F])* |
+    ($[0-9] ("_"? $[0-9])*)? "." $[0-9] ("_"? $[0-9])* |
+    $[0-9] ("_"? $[0-9])* "." |
+    $[0-9] ("_"? $[0-9])*
+  }
+
+  Identifier { $[A-Za-z_] $[A-Za-z0-9_!?]* }
+
+  @precedence { Splat, Number, Identifier }
+}

@@ -17,16 +17,19 @@
     }
   },
   "scripts": {
+    "grammar": "lezer-generator src/raven.grammar -o src/parser.ts --names --typeScript",
     "prepare": "npm run build",
-    "build": "tsc",
+    "build": "npm run grammar && tsc",
     "test": "tsc --noEmit && vitest run",
     "prepublishOnly": "npm run build && npm test"
   },
   "dependencies": {
     "@codemirror/language": "^6.11.3",
-    "@lezer/highlight": "^1.2.3"
+    "@lezer/highlight": "^1.2.3",
+    "@lezer/lr": "^1.4.10"
   },
   "devDependencies": {
+    "@lezer/generator": "^1.8.0",
     "@types/node": "^24.10.1",
     "typescript": "^5.9.3",
     "vitest": "^4.0.13"

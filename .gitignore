@@ -1,3 +1,5 @@
 node_modules/
 dist/
+/src/parser.ts
+/src/parser.terms.ts
 .claude
